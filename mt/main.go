@@ -16,14 +16,13 @@ var (
 	utxos          UTXOSet
 )
 
+const nRoutines = 4
 const fileName = "data.csv"
 
 func main() {
 	t := [][]int64{} // Time vector
-	createBlockchain()
 	t = append(t, runTest1(10))
 	writeToFile(t)
-	// fmt.Println(chain.String())
 }
 
 // createBlockchain will create new wallets and blockchain

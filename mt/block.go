@@ -33,9 +33,14 @@ func NewGenesisBlock(coinbase *Transaction) *Block {
 func (b *Block) Mine() {
 	// TODO(student)
 	pow := NewProofOfWork(b)
-	nonce, hash := pow.Run()
-	b.Nonce = nonce
-	b.Hash = hash
+	notifyChan := make(chan NonceHash)
+	for start := 0; start < nRoutines; start++ {
+		go pow.Run(start, nRoutines, notifyChan)
+	}
+
+	nh := <-notifyChan
+	b.Nonce = nh.Nonce
+	b.Hash = nh.Hash
 }
 
 // HashTransactions returns a hash of the transactions in the block
