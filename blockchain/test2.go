@@ -5,14 +5,15 @@ import (
 	"time"
 )
 
-// Wallet 1 always sends 10 coin to Wallet 2
-// One input tx, one output tx
-func runTest1(n int) []int64 {
+// Wallet 1 always sends 1 coin to Wallet 2
+// One input tx, two output tx
+// Every 10 transactions will be 1:1 ?
+func runTest2(n int) []int64 {
 	createBlockchain()
 	t := []int64{}
 
 	for i := 0; i < n; i++ {
-		newTransaction(10) // Send 10
+		newTransaction(1) // Send 10
 		txs := prepareTXs()
 		t0 := time.Now()
 		_, err := chain.MineBlock(txs)
