@@ -21,10 +21,9 @@ const fileName = "data.csv"
 func main() {
 	t := [][]int64{} // Time vector
 	createBlockchain()
-	t = append(t, runTest1(2000))
+	t = append(t, runTest1(10))
 	writeToFile(t)
 	// fmt.Println(chain.String())
-	// fmt.Printf("%v\n", t)
 }
 
 // createBlockchain will create new wallets and blockchain
@@ -62,7 +61,7 @@ func writeToFile(result [][]int64) {
 		return
 	}
 
-	for t := range result {
+	for _, t := range result {
 		s := strings.Trim(strings.Replace(fmt.Sprint(t), " ", ",", -1), "[]")
 		f.WriteString(s)
 	}
