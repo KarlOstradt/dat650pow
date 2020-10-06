@@ -25,8 +25,10 @@ func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[s
 			if (&output).IsLockedWithKey(pubKeyHash) {
 				if sum < amount { // Only append enough outputs
 					out = append(out, i)
+					sum += output.Value
+				} else {
+					break
 				}
-				sum += output.Value
 			}
 		}
 		spendable[txID] = out
