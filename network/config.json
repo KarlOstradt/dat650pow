@@ -1,0 +1,19 @@
+{
+	"servers": [
+		{
+			"hostname": "pitter16",
+			"id": 0,
+			"address": "pitter16:1234"
+		},
+		{
+			"hostname": "pitter17",
+			"id": 1,
+			"address": "pitter17:1234"
+		},
+		{
+			"hostname": "pitter18",
+			"id": 2,
+			"address": "pitter18:1234"
+		}	
+	]
+}
