@@ -17,7 +17,7 @@ var (
 	verbose        bool
 )
 
-const fileName = "data.csv"
+const fileName = "data20.csv"
 
 func main() {
 	verbose = false
