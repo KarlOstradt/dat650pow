@@ -12,7 +12,7 @@ var (
 )
 
 // TARGETBITS define the mining difficulty
-const TARGETBITS = 30
+const TARGETBITS = 20
 
 // ProofOfWork represents a block mined with a target difficulty
 type ProofOfWork struct {

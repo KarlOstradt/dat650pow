@@ -65,9 +65,10 @@ func mine(txs []*Transaction, prevHash []byte) Block {
 	// }()
 	// fmt.Printf("%v\n", connection)
 	_, err = connection.WriteToUDP(mBlock, addr)
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Millisecond * 50)
 
 	_, err = connection.WriteToUDP([]byte("STP"), addr)
+	_, err = connection.WriteToUDP(mBlock, addr)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

@@ -22,9 +22,10 @@ const fileName = "data20.csv"
 
 // MainMethod func
 func MainMethod() {
+	fmt.Println("MainMethod")
 	verbose = false
 	t := [][]int64{} // Time vector
-	t = append(t, runTest1(3))
+	t = append(t, runTest1(2))
 	writeToFile(t)
 	// fmt.Println(chain.String())
 }
