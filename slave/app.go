@@ -49,6 +49,7 @@ func main() {
 
 func handleRequest(connection *net.UDPConn) {
 	buffer := make([]byte, 1024)
+	stopChan := make(chan bool)
 	for {
 		fmt.Println("Waiting for request...")
 		n, _, err := connection.ReadFromUDP(buffer)
@@ -56,9 +57,11 @@ func handleRequest(connection *net.UDPConn) {
 			fmt.Println(err.Error())
 		}
 		tag := string(buffer[0:3])
+
 		switch tag {
 		case "STP":
 			//TODO: Notify node to stop solving pow
+			stopChan <- true
 		case "POW":
 			//TODO: Update blockchain
 			fmt.Println("Received pow request")
@@ -69,8 +72,14 @@ func handleRequest(connection *net.UDPConn) {
 			}
 			// fmt.Println(block.String())
 
-			block.Mine()
-			sendResponse(connection, block)
+			go func() {
+				block.Mine(stopChan)
+				if block.Nonce != -1 {
+					sendResponse(connection, block)
+				}
+
+			}()
+
 		}
 	}
 }

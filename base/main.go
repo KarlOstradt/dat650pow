@@ -20,10 +20,11 @@ var (
 const nRoutines = 8
 const fileName = "data20.csv"
 
-func main() {
+// MainMethod func
+func MainMethod() {
 	verbose = false
 	t := [][]int64{} // Time vector
-	t = append(t, runTest1(50))
+	t = append(t, runTest1(3))
 	writeToFile(t)
 	// fmt.Println(chain.String())
 }

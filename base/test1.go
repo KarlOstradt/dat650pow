@@ -51,20 +51,37 @@ func mine(txs []*Transaction, prevHash []byte) Block {
 		fmt.Println(err.Error())
 	}
 	connection, err := net.ListenUDP("udp4", s)
+	defer connection.Close()
 
 	block := Block{PrevBlockHash: prevHash, Transactions: txs}
+	block.Timestamp = time.Now().Unix()
+	block.Hash = []byte{}
+	block.Nonce = -1
 	mBlock := MarshalBlock(block)
-	connection.WriteToUDP(mBlock, addr)
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// }()
+	// fmt.Printf("%v\n", connection)
+	_, err = connection.WriteToUDP(mBlock, addr)
+	time.Sleep(time.Second * 5)
 
-	// chanReceive := make(chan []byte)
-	buffer := []byte{}
-	connection.Read(buffer)
-
-	err = json.Unmarshal(buffer, &block)
+	_, err = connection.WriteToUDP([]byte("STP"), addr)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	// fmt.Println("AAA")
+	// chanReceive := make(chan []byte)
+	buffer := make([]byte, 1024)
+	n, _ := connection.Read(buffer)
 
+	err = json.Unmarshal(buffer[3:n], &block)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	// fmt.Println(block.String())
+	// fmt.Println(block.Nonce)
 	return block
 }
 
