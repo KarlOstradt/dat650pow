@@ -1,4 +1,4 @@
-package network
+package main
 
 import (
 	"dat650/base"
@@ -17,6 +17,8 @@ var addresses = []string{}
 
 func main() {
 
+	fmt.Println("Program started")
+
 	// Setup
 	ourID, networkNodes, addresses = setup()
 
@@ -32,6 +34,8 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fmt.Println("Setup and address resolved")
+
 	// Start go rutines
 	go handleRequest(connection)
 	// go handleResponse(connection)
@@ -46,6 +50,7 @@ func main() {
 func handleRequest(connection *net.UDPConn) {
 	buffer := make([]byte, 1024)
 	for {
+		fmt.Println("Waiting for request...")
 		n, _, err := connection.ReadFromUDP(buffer)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -56,11 +61,13 @@ func handleRequest(connection *net.UDPConn) {
 			//TODO: Notify node to stop solving pow
 		case "POW":
 			//TODO: Update blockchain
+			fmt.Println("Received pow request")
 			var block base.Block
 			err = json.Unmarshal(buffer[3:n], &block)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
+			// fmt.Println(block.String())
 
 			block.Mine()
 			sendResponse(connection, block)
