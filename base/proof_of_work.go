@@ -12,12 +12,18 @@ var (
 )
 
 // TARGETBITS define the mining difficulty
-const TARGETBITS = 16
+const TARGETBITS = 20
 
 // ProofOfWork represents a block mined with a target difficulty
 type ProofOfWork struct {
 	block  *Block
 	target *big.Int // 2 ** (256 - targetbits)
+}
+
+// NonceHash contains a nonce and the hash
+type NonceHash struct {
+	Nonce int
+	Hash  []byte
 }
 
 // NewProofOfWork builds a ProofOfWork
@@ -47,22 +53,35 @@ func addNonce(nonce int, header []byte) []byte {
 }
 
 // Run performs the proof-of-work
-func (pow *ProofOfWork) Run() (int, []byte) {
+func (pow *ProofOfWork) Run(start, nRoutines int, notifyChan chan NonceHash) {
 	num := big.NewInt(0)
 	header := pow.setupHeader()
-	for nonce := 0; nonce < maxNonce; nonce++ {
-
+	for nonce := start; nonce < maxNonce; nonce += nRoutines {
 		sum := sha256.Sum256(addNonce(nonce, header))
 		num.SetBytes(sum[:])
-		if num.Cmp(pow.target) == -1 {
-			return nonce, sum[:]
+
+		select {
+		case <-notifyChan:
+			return
+		default:
+			if num.Cmp(pow.target) == -1 {
+				defer func() {
+					if err := recover(); err != nil {
+					}
+					return
+				}()
+
+				notifyChan <- NonceHash{nonce, sum[:]}
+
+				close(notifyChan)
+
+				return
+			}
 		}
-		// if bytes.Compare(sum[:], pow.target.Bytes()) < 0 {
-		// 	return nonce, sum[:]
-		// }
 	}
 	// TODO(student)
-	return 0, []byte{}
+	notifyChan <- NonceHash{0, []byte{}}
+	close(notifyChan)
 }
 
 // Validate validates block's Proof-Of-Work

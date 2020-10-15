@@ -14,17 +14,18 @@ var (
 	wallet2        *Wallet
 	wallet2Address string
 	utxos          UTXOSet
+	verbose        bool
 )
 
-const fileName = "data.csv"
+const nRoutines = 8
+const fileName = "data20.csv"
 
 func main() {
-	// t := [][]int64{} // Time vector
-	// createBlockchain()
-	// t = append(t, runTest1(100))
-	// t = append(t, runTest2(100))
-	// writeToFile(t)
-	// // fmt.Println(chain.String())
+	verbose = false
+	t := [][]int64{} // Time vector
+	t = append(t, runTest1(50))
+	writeToFile(t)
+	// fmt.Println(chain.String())
 }
 
 // createBlockchain will create new wallets and blockchain

@@ -14,7 +14,6 @@ const (
 var ourID int = -1
 var networkNodes = []int{}
 var addresses = []string{}
-var blockchain base.Blockchain
 
 func main() {
 
@@ -35,7 +34,7 @@ func main() {
 
 	// Start go rutines
 	go handleRequest(connection)
-	go handleResponse(connection)
+	// go handleResponse(connection)
 
 	stop := make(chan struct{})
 	select {
@@ -53,23 +52,25 @@ func handleRequest(connection *net.UDPConn) {
 		}
 		tag := string(buffer[0:3])
 		switch tag {
-		case "MSG":
+		case "STP":
 			//TODO: Notify node to stop solving pow
-		case "UPD":
+		case "POW":
 			//TODO: Update blockchain
-			var newBc base.Blockchain
-			err = json.Unmarshal(buffer[3:n], &newBc)
+			var block base.Block
+			err = json.Unmarshal(buffer[3:n], &block)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			blockchain = newBc
-		case "POW":
-			//TODO: Solve pow
+
+			block.Mine()
+			sendResponse(connection, block)
 		}
 	}
 }
 
-func handleResponse(connection *net.UDPConn) {
+func sendResponse(connection *net.UDPConn, block base.Block) {
 	// buffer
 	// buffer := make([]byte, 2000)
+	addr, _ := net.ResolveUDPAddr("udp4", "192.168.39.135:1234")
+	connection.WriteToUDP(base.MarshalBlock(block), addr)
 }
