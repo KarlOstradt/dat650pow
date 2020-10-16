@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"time"
 )
 
 const (
@@ -50,8 +51,9 @@ func main() {
 func handleRequest(connection *net.UDPConn) {
 	buffer := make([]byte, 1024)
 	stopChan := make(chan bool)
+	close(stopChan)
 	for {
-		fmt.Println("Waiting for request...")
+		// fmt.Println("Waiting for request...")
 		n, _, err := connection.ReadFromUDP(buffer)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -60,11 +62,35 @@ func handleRequest(connection *net.UDPConn) {
 
 		switch tag {
 		case "STP":
-			//TODO: Notify node to stop solving pow
-			stopChan <- true
+			// fmt.Println("Received STP")
+			_, ok := <-stopChan
+			fmt.Println(ok)
+			if ok {
+				stopChan <- true
+			}
+			// fmt.Println("Ready to continue")
 		case "POW":
-			//TODO: Update blockchain
-			fmt.Println("Received pow request")
+			// fmt.Println("Received pow request")
+
+			// Attempt to stop previous pow
+			ticker := time.NewTicker(200 * time.Millisecond)
+			select {
+			case _, ok := <-stopChan:
+				if ok {
+					// fmt.Println("Stopping pow")
+					stopChan <- true
+				} else {
+					// fmt.Println("No pow to be stopped")
+				}
+
+			case <-ticker.C:
+				// fmt.Println("Stopping pow (ticker)")
+				stopChan <- true
+			}
+			ticker.Stop()
+
+			// fmt.Println("Unmarshal block")
+			stopChan = make(chan bool)
 			var block base.Block
 			err = json.Unmarshal(buffer[3:n], &block)
 			if err != nil {
@@ -72,21 +98,26 @@ func handleRequest(connection *net.UDPConn) {
 			}
 			// fmt.Println(block.String())
 
-			go func() {
+			// fmt.Println("Starting new pow")
+			go func(block base.Block) {
 				block.Mine(stopChan)
 				if block.Nonce != -1 {
 					sendResponse(connection, block)
 				}
+				defer func() {
+					if err := recover(); err != nil {
 
-			}()
+					}
+				}()
+				close(stopChan)
+			}(block)
 
 		}
 	}
 }
 
 func sendResponse(connection *net.UDPConn, block base.Block) {
-	// buffer
-	// buffer := make([]byte, 2000)
+	fmt.Println("Nonce:", block.Nonce)
 	addr, _ := net.ResolveUDPAddr("udp4", "192.168.39.135:1234")
 	connection.WriteToUDP(base.MarshalBlock(block), addr)
 }
