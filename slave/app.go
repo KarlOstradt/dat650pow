@@ -9,10 +9,13 @@ import (
 )
 
 const (
-	port = ":1234"
+	// port = ":1234"
+	port = ":1235"
 )
 
-var ourID int = -1
+var ourID int = 0
+
+// var ourID int = 1
 var networkNodes = []int{}
 var addresses = []string{}
 
@@ -100,7 +103,7 @@ func handleRequest(connection *net.UDPConn) {
 
 			// fmt.Println("Starting new pow")
 			go func(block base.Block) {
-				block.Mine(stopChan)
+				block.Mine(stopChan, ourID, 2)
 				if block.Nonce != -1 {
 					sendResponse(connection, block)
 				}
@@ -118,6 +121,7 @@ func handleRequest(connection *net.UDPConn) {
 
 func sendResponse(connection *net.UDPConn, block base.Block) {
 	fmt.Println("Nonce:", block.Nonce)
-	addr, _ := net.ResolveUDPAddr("udp4", "192.168.39.135:1234")
+	addr, _ := net.ResolveUDPAddr("udp4", ":1234")
+	// addr, _ := net.ResolveUDPAddr("udp4", "192.168.39.135:1234")
 	connection.WriteToUDP(base.MarshalBlock(block), addr)
 }

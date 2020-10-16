@@ -44,46 +44,48 @@ func runTest1(n int) []int64 {
 }
 
 func mine(txs []*Transaction, prevHash []byte) Block {
-	addr, err := net.ResolveUDPAddr("udp4", "192.168.39.140:1234")
-
-	s, err := net.ResolveUDPAddr("udp4", ":1234")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	connection, err := net.ListenUDP("udp4", s)
-	defer connection.Close()
-
 	block := Block{PrevBlockHash: prevHash, Transactions: txs}
 	block.Timestamp = time.Now().Unix()
 	block.Hash = []byte{}
 	block.Nonce = -1
 	mBlock := MarshalBlock(block)
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// }()
-	// fmt.Printf("%v\n", connection)
-	_, err = connection.WriteToUDP(mBlock, addr)
-	time.Sleep(time.Millisecond * 50)
-
-	_, err = connection.WriteToUDP([]byte("STP"), addr)
-	_, err = connection.WriteToUDP(mBlock, addr)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	// fmt.Println("AAA")
-	// chanReceive := make(chan []byte)
-	buffer := make([]byte, 1024)
-	n, _ := connection.Read(buffer)
-
-	err = json.Unmarshal(buffer[3:n], &block)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	// fmt.Println(block.String())
-	// fmt.Println(block.Nonce)
+	sendChallenge(mBlock)
+	block = awaitResponse()
+	fmt.Print("   ", block.Nonce)
+	fmt.Println("\n ")
 	return block
+}
+
+func sendChallenge(mBlock []byte) {
+	_, err := conn.WriteToUDP(mBlock, slave1)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	_, err = conn.WriteToUDP(mBlock, slave2)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func awaitResponse() Block {
+
+	for {
+		buffer := make([]byte, 1024)
+		n, fromAddr, err := conn.ReadFromUDP(buffer)
+
+		var block Block
+		err = json.Unmarshal(buffer[3:n], &block)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		if chain.ValidateBlock(&block) {
+			fmt.Printf("%v\n", fromAddr)
+			// fmt.Println(addrEquals(fromAddr, slave2))
+			return block
+		}
+
+	}
+
 }
 
 // MarshalBlock marshals the block
@@ -94,4 +96,8 @@ func MarshalBlock(block Block) []byte {
 	}
 	mBlock = append([]byte("POW"), mBlock...)
 	return mBlock
+}
+
+func addrEquals(a, b *net.UDPAddr) bool {
+	return a.IP.Equal(b.IP) && a.Port == b.Port
 }

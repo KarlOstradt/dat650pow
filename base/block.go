@@ -20,7 +20,7 @@ type Block struct {
 // NewBlock creates and returns Block
 func NewBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
 	block := &Block{Timestamp: time.Now().Unix(), Transactions: transactions, PrevBlockHash: prevBlockHash}
-	block.Mine(nil) // will set hash and nonce
+	block.Mine(nil, 0, 1) // will set hash and nonce
 	return block
 }
 
@@ -30,12 +30,12 @@ func NewGenesisBlock(coinbase *Transaction) *Block {
 }
 
 // Mine calculates and sets the block hash and nonce.
-func (b *Block) Mine(stopChan chan bool) {
+func (b *Block) Mine(stopChan chan bool, id, nSlaves int) {
 	// TODO(student)
 	pow := NewProofOfWork(b)
 	notifyChan := make(chan NonceHash)
-	for start := 0; start < nRoutines; start++ {
-		go pow.Run(start, nRoutines, notifyChan)
+	for start := id; start < nRoutines*nSlaves; start += nSlaves {
+		go pow.Run(start, nRoutines*nSlaves, notifyChan)
 	}
 	select {
 	case <-stopChan:

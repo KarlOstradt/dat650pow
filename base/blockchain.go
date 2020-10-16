@@ -69,6 +69,9 @@ func (bc *Blockchain) ValidateBlock(block *Block) bool {
 	if !block.Transactions[0].IsCoinbase() {
 		return false
 	}
+	if bytes.Compare(block.PrevBlockHash, bc.CurrentBlock().Hash) != 0 {
+		return false
+	}
 	pow := NewProofOfWork(block)
 
 	return pow.Validate()

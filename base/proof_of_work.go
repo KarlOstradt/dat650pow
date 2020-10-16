@@ -12,7 +12,7 @@ var (
 )
 
 // TARGETBITS define the mining difficulty
-const TARGETBITS = 20
+const TARGETBITS = 24
 
 // ProofOfWork represents a block mined with a target difficulty
 type ProofOfWork struct {
@@ -89,9 +89,12 @@ func (pow *ProofOfWork) Run(start, nRoutines int, notifyChan chan NonceHash) {
 // is less than the target.
 func (pow *ProofOfWork) Validate() bool {
 	// TODO(student)
-	isSmaller := bytes.Compare(pow.block.Hash, pow.target.Bytes()) < 0
-
+	num := big.NewInt(0)
 	sum := sha256.Sum256(addNonce(pow.block.Nonce, pow.setupHeader()))
-	validNonce := bytes.Compare(sum[:], pow.target.Bytes()) < 0
-	return isSmaller && validNonce
+	num.SetBytes(sum[:])
+
+	isSmaller := num.Cmp(pow.target) == -1
+	correctHash := bytes.Compare(sum[:], pow.block.Hash) == 0
+
+	return isSmaller && correctHash
 }

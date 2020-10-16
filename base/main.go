@@ -2,6 +2,7 @@ package base
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"strings"
 )
@@ -15,6 +16,9 @@ var (
 	wallet2Address string
 	utxos          UTXOSet
 	verbose        bool
+	slave1         *net.UDPAddr
+	slave2         *net.UDPAddr
+	conn           *net.UDPConn
 )
 
 const nRoutines = 8
@@ -22,10 +26,11 @@ const fileName = "data20.csv"
 
 // MainMethod func
 func MainMethod() {
+	resolveAddresses()
 	fmt.Println("MainMethod")
 	verbose = false
 	t := [][]int64{} // Time vector
-	t = append(t, runTest1(2))
+	t = append(t, runTest1(10))
 	writeToFile(t)
 	// fmt.Println(chain.String())
 }
@@ -70,4 +75,32 @@ func writeToFile(result [][]int64) {
 		f.WriteString(s + "\n")
 	}
 
+}
+
+func resolveAddresses() {
+	addr1, err := net.ResolveUDPAddr("udp4", "192.168.39.140:1234")
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("could not resolve 192.168.39.140:1234")
+	}
+	addr2, err := net.ResolveUDPAddr("udp4", "127.0.0.1:1235")
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("could not resolve :1235")
+	}
+
+	s, err := net.ResolveUDPAddr("udp4", ":1234")
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("could not resolve localhost :1234")
+	}
+
+	connection, err := net.ListenUDP("udp4", s)
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("could not establish listen connection on local port :1234")
+	}
+	slave1 = addr1
+	slave2 = addr2
+	conn = connection
 }
