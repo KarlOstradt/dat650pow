@@ -38,6 +38,16 @@ func runTest1(n int) []int64 {
 			fmt.Printf("%d %d %d\n", len(chain.blocks), balance1, balance2)
 		}
 		txBuffer = []*Transaction{}
+
+		if block.Nonce%2 == 1 {
+			slave1Score++
+		} else {
+			slave2Score++
+		}
+		// fmt.Println("Nonce:", block.Nonce)
+		if len(chain.blocks)%100 == 0 {
+			fmt.Println("Length of chain:", len(chain.blocks))
+		}
 	}
 
 	return t
@@ -51,8 +61,11 @@ func mine(txs []*Transaction, prevHash []byte) Block {
 	mBlock := MarshalBlock(block)
 	sendChallenge(mBlock)
 	block = awaitResponse()
-	fmt.Print("   ", block.Nonce)
-	fmt.Println("\n ")
+	if verbose {
+		fmt.Print("   ", block.Nonce)
+		fmt.Println("\n ")
+	}
+
 	return block
 }
 
@@ -79,7 +92,10 @@ func awaitResponse() Block {
 			fmt.Println(err.Error())
 		}
 		if chain.ValidateBlock(&block) {
-			fmt.Printf("%v\n", fromAddr)
+			if verbose {
+				fmt.Printf("%v\n", fromAddr)
+			}
+
 			// fmt.Println(addrEquals(fromAddr, slave2))
 			return block
 		}

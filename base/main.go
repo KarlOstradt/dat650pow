@@ -19,20 +19,30 @@ var (
 	slave1         *net.UDPAddr
 	slave2         *net.UDPAddr
 	conn           *net.UDPConn
+	slave1Score    int
+	slave2Score    int
 )
 
 const nRoutines = 8
-const fileName = "data20.csv"
+const fileName = "data16.csv"
 
 // MainMethod func
 func MainMethod() {
 	resolveAddresses()
+	defer printScores()
 	fmt.Println("MainMethod")
 	verbose = false
 	t := [][]int64{} // Time vector
-	t = append(t, runTest1(10))
+	t = append(t, runTest1(2000))
 	writeToFile(t)
+
 	// fmt.Println(chain.String())
+}
+
+func printScores() {
+	fmt.Println("ID 0:", slave2Score)
+	fmt.Println("ID 1:", slave1Score)
+
 }
 
 // createBlockchain will create new wallets and blockchain

@@ -9,11 +9,18 @@ import (
 )
 
 const (
+	// Eirik
 	// port = ":1234"
+
+	// Karl
 	port = ":1235"
 )
 
-var ourID int = 0
+// Karl
+var ourID int = 1
+
+// Eirik
+// var ourID int = 0
 
 // var ourID int = 1
 var networkNodes = []int{}
@@ -24,7 +31,7 @@ func main() {
 	fmt.Println("Program started")
 
 	// Setup
-	ourID, networkNodes, addresses = setup()
+	// ourID, networkNodes, addresses = setup()
 
 	// Resolve UDP address
 	s, err := net.ResolveUDPAddr("udp4", port)
@@ -52,6 +59,13 @@ func main() {
 }
 
 func handleRequest(connection *net.UDPConn) {
+	fmt.Println("HandleRequest")
+	defer func(connection *net.UDPConn) {
+		if err := recover(); err != nil {
+			fmt.Println("Crashed. Starting new handleRequest routine.")
+			go handleRequest(connection)
+		}
+	}(connection)
 	buffer := make([]byte, 1024)
 	stopChan := make(chan bool)
 	close(stopChan)
@@ -76,7 +90,7 @@ func handleRequest(connection *net.UDPConn) {
 			// fmt.Println("Received pow request")
 
 			// Attempt to stop previous pow
-			ticker := time.NewTicker(200 * time.Millisecond)
+			ticker := time.NewTicker(50 * time.Millisecond)
 			select {
 			case _, ok := <-stopChan:
 				if ok {
@@ -120,8 +134,12 @@ func handleRequest(connection *net.UDPConn) {
 }
 
 func sendResponse(connection *net.UDPConn, block base.Block) {
-	fmt.Println("Nonce:", block.Nonce)
+	// fmt.Println("Nonce:", block.Nonce)
+
+	// Karl
 	addr, _ := net.ResolveUDPAddr("udp4", ":1234")
+
+	// Eirik
 	// addr, _ := net.ResolveUDPAddr("udp4", "192.168.39.135:1234")
 	connection.WriteToUDP(base.MarshalBlock(block), addr)
 }

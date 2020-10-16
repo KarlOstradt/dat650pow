@@ -40,12 +40,12 @@ func (b *Block) Mine(stopChan chan bool, id, nSlaves int) {
 	select {
 	case <-stopChan:
 		notifyChan <- NonceHash{}
-		close(notifyChan)
+		// close(notifyChan)
 	case nh := <-notifyChan:
 		b.Nonce = nh.Nonce
 		b.Hash = nh.Hash
 	}
-
+	close(notifyChan)
 }
 
 // HashTransactions returns a hash of the transactions in the block
