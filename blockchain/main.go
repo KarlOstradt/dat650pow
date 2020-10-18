@@ -23,7 +23,7 @@ func main() {
 	verbose = false
 	t := [][]int64{} // Time vector
 	t = append(t, runTest1(2000))
-	t = append(t, runTest2(2000))
+	// t = append(t, runTest2(2000))
 	writeToFile(t)
 	// fmt.Println(chain.String())
 }
