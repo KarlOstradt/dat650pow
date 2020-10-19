@@ -23,7 +23,7 @@ var (
 	slave2Score    int
 )
 
-const nRoutines = 8
+const nRoutines = 6
 const fileName = "data16.csv"
 
 // MainMethod func
@@ -35,8 +35,6 @@ func MainMethod() {
 	t := [][]int64{} // Time vector
 	t = append(t, runTest1(2000))
 	writeToFile(t)
-
-	// fmt.Println(chain.String())
 }
 
 func printScores() {

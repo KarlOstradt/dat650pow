@@ -12,7 +12,7 @@ var (
 )
 
 // TARGETBITS define the mining difficulty
-const TARGETBITS = 16
+const TARGETBITS = 20
 
 // ProofOfWork represents a block mined with a target difficulty
 type ProofOfWork struct {
@@ -70,16 +70,11 @@ func (pow *ProofOfWork) Run(start, nRoutines int, notifyChan chan NonceHash) {
 					}
 					return
 				}()
-
 				notifyChan <- NonceHash{nonce, sum[:]}
-
-				// close(notifyChan)
-
 				return
 			}
 		}
 	}
-	// TODO(student)
 	notifyChan <- NonceHash{0, []byte{}}
 	close(notifyChan)
 }

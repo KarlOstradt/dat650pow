@@ -40,7 +40,6 @@ func (b *Block) Mine(stopChan chan bool, id, nSlaves int) {
 	select {
 	case <-stopChan:
 		notifyChan <- NonceHash{}
-		// close(notifyChan)
 	case nh := <-notifyChan:
 		b.Nonce = nh.Nonce
 		b.Hash = nh.Hash

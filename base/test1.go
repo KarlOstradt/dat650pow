@@ -22,11 +22,7 @@ func runTest1(n int) []int64 {
 		newTransaction(10) // Send 10
 		txs := prepareTXs()
 		t0 := time.Now()
-		// _, err := chain.MineBlock(txs)
-		// if err != nil {
-		// 	fmt.Println(err.Error())
-		// 	return nil
-		// }
+
 		block := mine(txs, chain.CurrentBlock().Hash)
 		chain.blocks = append(chain.blocks, &block)
 
@@ -44,7 +40,6 @@ func runTest1(n int) []int64 {
 		} else {
 			slave2Score++
 		}
-		// fmt.Println("Nonce:", block.Nonce)
 		if len(chain.blocks)%100 == 0 {
 			fmt.Println("Length of chain:", len(chain.blocks))
 		}
@@ -96,7 +91,6 @@ func awaitResponse() Block {
 				fmt.Printf("%v\n", fromAddr)
 			}
 
-			// fmt.Println(addrEquals(fromAddr, slave2))
 			return block
 		}
 

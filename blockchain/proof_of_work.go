@@ -57,9 +57,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 		if num.Cmp(pow.target) == -1 {
 			return nonce, sum[:]
 		}
-		// if bytes.Compare(sum[:], pow.target.Bytes()) < 0 {
-		// 	return nonce, sum[:]
-		// }
+
 	}
 	// TODO(student)
 	return 0, []byte{}

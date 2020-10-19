@@ -1,0 +1,4 @@
+20 difficulty on master and slave 0. 16 difficulty on slave 1.
+
+ID 0: 2000
+ID 1: 0

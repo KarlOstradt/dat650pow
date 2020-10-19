@@ -1,0 +1,4 @@
+19 difficulty on master/slave 1 (4 threads) vs 20 difficulty on slave2 (8 threads)
+
+ID 0: 0
+ID 1: 2000
